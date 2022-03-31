@@ -1,0 +1,16 @@
+ADD AO 
+ <!-- Firebase -->
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-database.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+
+
+
+
+
+ // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
