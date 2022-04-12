@@ -9,6 +9,8 @@ class Game {
 
     this.leader1 = createElement("h2");
     this.leader2 = createElement("h2");
+
+    this.playerMoving = false;
     
   }
 
@@ -98,14 +100,18 @@ class Game {
   play() {
     this.handleElements();
     this.handleResetButton();
-
     Player.getPlayersInfo();
+
+    player.getCarsAtEnd();
 
     if (allPlayers !== undefined) {
       image(pistaImg, 0, -height * 5, width, height * 6);
 
- //     this.showLeaderboard();
+     this.showLeaderboard();
 
+     this.showLife();
+     this.showFuel();
+     
      //índice da matriz
       var index = 0;
       for (var plr in allPlayers) {
@@ -135,6 +141,18 @@ class Game {
       // manipulando eventos de teclado
       this.handlePlayerControls();
 
+      // Configurando linha de chegada
+
+      const finishLine = height*6 - 100;
+
+      if(player.positionY > finishLine){
+        gameState = 2;
+        player.rank += 1;
+        Player.updateCarsAtEnd(player.rank);
+        player.update();
+        this.showRank();
+      }
+
       drawSprites();
     }
   }
@@ -144,7 +162,8 @@ class Game {
       database.ref("/").set({
         playerCount: 0,
         gameState: 0,
-        players: {}
+        players: {},
+        CarsAtEnd: 0
       });
       window.location.reload();
     });
@@ -196,16 +215,19 @@ class Game {
 
   handlePlayerControls() {
     if (keyIsDown(UP_ARROW)) {
+      this.playerMoving = true;
       player.positionY += 10;
       player.update();
     }
 
     if (keyIsDown(LEFT_ARROW) && player.positionX > width / 3 - 50) {
+      this.playerMoving = true;
       player.positionX -= 5;
       player.update();
     }
 
     if (keyIsDown(RIGHT_ARROW) && player.positionX < width / 2 + 300) {
+      this.playerMoving = true;
       player.positionX += 5;
       player.update();
     }
@@ -237,6 +259,18 @@ class Game {
       player.fuel = 185;
       collected.remove();
     })
+
+    // Reduzindo o combustível do carro
+
+    if(player.fuel > 0 && this.playerMoving){
+      player.fuel -= 0.5;
+    }
+
+    if(player.fuel <= 0){
+      gameState = 2;
+      this.gameOver();
+    }
+
   }
 
   handleCoin(index){
@@ -246,5 +280,50 @@ class Game {
       collected.remove();
     })
   }
+
+  showRank() {
+    swal({
+      title: `Incrível!${"\n"}Rank${"\n"}${player.rank}`,
+      text: "Você alcançou a linha de chegada com sucesso!",
+      imageUrl:
+        "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
+      imageSize: "100x100",
+      confirmButtonText: "Ok"
+    });
+  }
+
+  showLife(){
+    push();
+    image(lifeImg, width/2 - 130, height - player.positionY - 250, 20, 20);
+    fill("white");
+    rect(width/2 - 100, height - player.positionY - 250, 185, 20);
+    fill("#f50057");
+    rect(width/2 - 100, height - player.positionY - 250, player.life, 20);
+    noStroke();
+    pop();
+  }
+
+  showFuel(){
+    push();
+    image(fuelImg,width/2 -130, height - player.positionY - 300, 20, 20);
+    fill("white");
+    rect(width/2 - 100, height - player.positionY - 300, 185, 20);
+    fill("#ffc400");
+    rect(width/2 - 100, height - player.positionY - 300, player.fuel, 20);
+    noStroke();
+    pop();
+  }
+
+  gameOver() {
+    swal({
+      title: `Fim de Jogo`,
+      text: "Oops você perdeu a corrida!",
+      imageUrl:
+        "https://cdn.shopify.com/s/files/1/1061/1924/products/Thumbs_Down_Sign_Emoji_Icon_ios10_grande.png",
+      imageSize: "100x100",
+      confirmButtonText: "Obrigado por jogar"
+    });
+  }
+
 
 }

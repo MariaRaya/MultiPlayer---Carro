@@ -7,6 +7,7 @@ class Player {
     this.rank = 0;
     this.score = 0;
     this.fuel = 185;
+    this.life = 185;
   }
 
   addPlayer() {
@@ -64,5 +65,17 @@ class Player {
     playerInfoRef.on("value", data => {
       allPlayers = data.val();
     });
+  }
+
+  getCarsAtEnd(){
+    database.ref("CarsAtEnd").on("value", (data) => {
+      this.rank = data.val()
+    })
+  }
+
+  static updateCarsAtEnd(rank){
+    database.ref("/").update({
+      CarsAtEnd: rank   
+    })
   }
 }
